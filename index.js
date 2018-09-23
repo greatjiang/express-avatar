@@ -45,18 +45,27 @@ app.post('/upload', (req, res) => {
       const curtime = new Date().getTime()
       let imagetarget = curtime+''+filename
       console.log(imagetarget)
-      const sql = "insert into avatar (img,inserttime) value ('"+imagetarget+"','"+curtime+"')"
+      // const sql = "insert into avatar (img,inserttime) value ('"+imagetarget+"','"+curtime+"')"
+      fs.writeFileSync(__dirname+'/public/images/'+imagetarget,fs.readFileSync(files.file.path))
 
+      const sql = `insert into avatar (img,inserttime) value ('${imagetarget}','${curtime}')`
       connection.query(sql, (err, result) => {
         if (err) {
           console.log(err)
+          // 删除刚才上传的文件
+          fs.unlink(__dirname+'/public/images/'+imagetarge, err => {
+            if (err) {
+              return console.error(err)
+            }
+            console.log('删除成功')
+          })
+          // 省略...
           res.status(200)
           res.json({
             code: -1,
             msg: '数据库异常~'
           })
         } else {
-          fs.writeFileSync(__dirname+'/public/images/'+imagetarget,fs.readFileSync(files.file.path))
           res.status(200)
           res.json({
             code: 0,
